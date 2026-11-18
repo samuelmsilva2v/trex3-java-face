@@ -1,8 +1,8 @@
 {
   "configVersion": "v3",
   "app": {
-    "appId": 1094118,
-    "appName": "Status.java",
+    "appId": 1137032,
+    "appName": "Builder.class",
     "appType": "watchface",
     "version": {
       "code": 1,
@@ -47,10 +47,10 @@
   },
   "i18n": {
     "en-US": {
-      "appName": "Status.java"
+      "appName": "Builder.class"
     },
     "pt-BR": {
-      "appName": "Status.java"
+      "appName": "Builder.class"
     }
   },
   "defaultLanguage": "en-US"

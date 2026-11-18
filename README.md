@@ -1,18 +1,8 @@
-# Status.java — mostrador para Amazfit T-Rex 3
+# Builder.class — mostrador para Amazfit T-Rex 3
 
 Mostrador estilo código Java com builder (Zepp OS, 480x480): hora, data, passos, batimentos, kcal e distância.
 
-```
-1  @Scheduled("17:56")
-2  Status.builder()
-3    .date("qua 18/11")
-4    .steps(3432)
-5    .heartRate(64)
-6    .kcal(150)
-7    .distanceKm(2.52)
-8    .build();
-   ● BT · Java 21 · Ln 8
-```
+![Preview do mostrador](docs/preview.png)
 
 Tem `appId` diferente do status.json, então os dois podem ficar instalados ao mesmo tempo.
 
