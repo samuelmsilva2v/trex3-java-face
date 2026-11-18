@@ -1,0 +1,76 @@
+# Status.java — mostrador para Amazfit T-Rex 3
+
+Mostrador estilo código Java com builder (Zepp OS, 480x480): hora, data, passos, batimentos, kcal e distância.
+
+```
+1  @Scheduled("17:56")
+2  Status.builder()
+3    .date("qua 18/11")
+4    .steps(3432)
+5    .heartRate(64)
+6    .kcal(150)
+7    .distanceKm(2.52)
+8    .build();
+   ● BT · Java 21 · Ln 8
+```
+
+Tem `appId` diferente do status.json, então os dois podem ficar instalados ao mesmo tempo.
+
+## Estrutura
+
+```
+java-face/
+├── app.json                         # manifesto (appType: watchface, permissões dos sensores)
+├── watchface/index.js               # layout + sensores
+└── assets/default.r/
+    ├── icon.png                     # preview 324x324 (lista de mostradores)
+    └── fonts/JetBrainsMono-Subset.ttf
+```
+
+## Instalar no relógio
+
+1. Node.js 18+ e o Zeus CLI:
+   ```bash
+   npm i -g @zeppos/zeus-cli
+   zeus login
+   ```
+2. No app Zepp no celular: **Perfil → Configurações → Sobre**, toque 7 vezes no logo do Zepp para liberar o **Modo desenvolvedor**.
+3. Na pasta do projeto:
+   ```bash
+   cd java-face
+   zeus preview
+   ```
+   Escolha o **Amazfit T-Rex 3** quando pedir o dispositivo. Vai aparecer um QR code.
+4. No app Zepp: **Perfil → Modo desenvolvedor → Scan**, e escaneie o QR code. O mostrador é instalado e aplicado.
+
+Para testar no simulador antes: `zeus dev` (precisa do Zepp OS Simulator instalado).
+
+## Se o `zeus preview` reclamar do app.json ou dos assets
+
+O formato do `app.json` (v3) e o nome da pasta de assets variam entre versões do Zeus. O jeito mais seguro:
+
+```bash
+zeus create teste-wf      # escolha: Watchface → T-Rex 3
+```
+
+Compare o `app.json` e a pasta `assets/` gerados com os deste projeto. Copie de lá o bloco `targets` e o nome da pasta de assets, mantenha as `permissions` deste projeto e mova `icon.png` + `fonts/` para a pasta que o template criou. O `appId` gerado pelo template também pode ser usado no lugar do daqui.
+
+## Personalizar
+
+Tudo fica no topo de `watchface/index.js`:
+
+- **Cores:** objeto `C` (hex `0xRRGGBB`)
+- **Tamanhos:** `TIME_SIZE` (hora), `SIZE` (demais linhas), `LINE_H`, `TOP`
+- **Posição horizontal:** `CODE_X`
+- **Dias da semana:** array `DAYS`
+
+O alinhamento das cores depende da fonte ser monoespaçada (cada caractere = 0,6 × tamanho). Se trocar a fonte, use outra mono ou ajuste `ADV`.
+
+## Comportamento
+
+- Batimento sem medição recente aparece como `null` (laranja, como palavra-chave).
+- Distância vem em metros do sensor e é exibida em km com 2 casas (número, sem aspas).
+- O ● da barra de status fica verde com o celular conectado por Bluetooth e cinza desconectado (atualiza a cada minuto).
+- Não tem versão AOD (tela sempre ligada) ainda.
+
+Fonte: JetBrains Mono (SIL OFL 1.1), reduzida aos caracteres usados.
