@@ -13,7 +13,7 @@ Tem `appId` diferente do status.json, então os dois podem ficar instalados ao m
 java-face/
 ├── app.json                         # manifesto (appType: watchface, permissões dos sensores)
 ├── watchface/index.js               # layout + sensores
-└── assets/default.r/
+└── assets/default.w480-r/
     ├── icon.png                     # preview 324x324 (lista de mostradores)
     └── fonts/JetBrainsMono-Subset.ttf
 ```
@@ -83,7 +83,7 @@ It has a different `appId` from status.json, so both can be installed at the sam
 java-face/
 ├── app.json                         # manifest (appType: watchface, sensor permissions)
 ├── watchface/index.js               # layout + sensors
-└── assets/default.r/
+└── assets/default.w480-r/
     ├── icon.png                     # 324x324 preview (watch face list)
     └── fonts/JetBrainsMono-Subset.ttf
 ```
