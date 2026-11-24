@@ -8,10 +8,11 @@
  *   5    .heartRate(64)
  *   6    .kcal(150)
  *   7    .distanceKm(2.52)
- *   8    .build();
+ *   8    .sleep("7h32m")     (null sem registro de sono)
+ *   9    .build();
  */
 import { createWidget, widget, align, prop, text_style } from '@zos/ui'
-import { Time, Step, HeartRate, Calorie, Distance } from '@zos/sensor'
+import { Time, Step, HeartRate, Calorie, Distance, Sleep } from '@zos/sensor'
 import { connectStatus } from '@zos/ble'
 
 // ---------- tema (cores de IDE escura) ----------
@@ -40,14 +41,23 @@ const GUTTER_X = 42
 const GUTTER_W = 40
 const GUTTER_SIZE = 17
 
-const TOP = 69
+const TOP = 64
 const TIME_SIZE = 32
-const TIME_H = 51
+const TIME_H = 50
 const SIZE = 24
-const LINE_H = 40
+const LINE_H = 37
 
 const DAYS = ['seg', 'ter', 'qua', 'qui', 'sex', 'sáb', 'dom'] // Time.getDay(): 1 = segunda ... 7 = domingo
 const pad = (n) => String(n).padStart(2, '0')
+// minutos de sono → "7h32m"; null quando o relógio não registrou sono
+const sleepText = (min) => (min > 0 ? `${Math.floor(min / 60)}h${pad(min % 60)}m` : null)
+const sleepMinutes = (s) => {
+  try {
+    return (s.getInfo() || {}).totalTime || 0
+  } catch (e) {
+    return 0 // sem permissão ou sem dado
+  }
+}
 
 function text(props) {
   return createWidget(widget.TEXT, {
@@ -132,6 +142,7 @@ WatchFace({
     this.hr = new HeartRate()
     this.cal = new Calorie()
     this.dist = new Distance()
+    this.sleep = new Sleep()
 
     // ---------- aba "Status.java" ----------
     const tabSize = 17
@@ -142,7 +153,7 @@ WatchFace({
     const tabW = tabPad * 2 + iconD + Math.round(tabLabel.length * tabCw)
     const closeW = 24
     const tabX = Math.round(240 - (tabW + 6 + closeW) / 2)
-    const tabY = 27
+    const tabY = 24
     const tabH = 30
 
     createWidget(widget.FILL_RECT, { x: tabX, y: tabY, w: tabW, h: tabH, color: C.tabBg })
@@ -199,7 +210,9 @@ WatchFace({
     y += LINE_H
     this.lDist = call(7, y, 'distanceKm', '0.00', C.num)
     y += LINE_H
-    new CodeLine(8, y, LINE_H, SIZE, [
+    this.lSleep = call(8, y, 'sleep', 'null', C.kw)
+    y += LINE_H
+    new CodeLine(9, y, LINE_H, SIZE, [
       { text: '  .', color: C.text },
       { text: 'build', color: C.method },
       { text: '()', color: C.text },
@@ -209,9 +222,9 @@ WatchFace({
     // ---------- barra de status ----------
     const stSize = 15
     const stCw = stSize * ADV
-    const stRest = ' BT  ·  Java 21  ·  Ln 8'
+    const stRest = ' BT  ·  Java 21  ·  Ln 9'
     const stX = Math.round(240 - ((1 + stRest.length) * stCw) / 2)
-    const stY = 413
+    const stY = 418
     this.btDot = text({ x: stX, y: stY, w: 20, h: 24, text: '●', color: C.off, text_size: stSize })
     text({
       x: stX + Math.round(stCw),
@@ -245,15 +258,25 @@ WatchFace({
       const meters = this.dist.getCurrent() // em metros
       this.lDist.set(3, (meters / 1000).toFixed(2))
     }
+    this.updateSleep = () => {
+      const s = sleepText(sleepMinutes(this.sleep))
+      if (s) this.lSleep.set(3, `"${s}"`, C.str)
+      else this.lSleep.set(3, 'null', C.kw)
+    }
     this.updateAll = () => {
       this.updateTime()
       this.updateSteps()
       this.updateHr()
       this.updateKcal()
       this.updateDist()
+      this.updateSleep()
     }
 
-    this.time.onPerMinute(this.updateTime)
+    // sono não tem evento de mudança (o sistema recalcula a cada ~30 min): lê a cada minuto
+    this.time.onPerMinute(() => {
+      this.updateTime()
+      this.updateSleep()
+    })
     this.step.onChange(this.updateSteps)
     this.hr.onLastChange(this.updateHr)
     this.cal.onChange(this.updateKcal)
